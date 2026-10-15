@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-web-agent"
+version = "0.1.0"
+description = "Autonomous AI agent for goal-driven web navigation, reasoning, and automated data extraction."
+authors = [{ name = "Prajwal Mahesh", email = "204323083+prajwal0104@users.noreply.github.com" }]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "playwright>=1.49.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "httpx>=0.27.0",
+    "rich>=13.9.0",
+    "python-dotenv>=1.0.1",
+    "typer>=0.12.5",
+    "beautifulsoup4>=4.12.3",
+]
+
+[project.scripts]
+web-agent = "src.main:cli"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
