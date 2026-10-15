@@ -1,6 +1,7 @@
 # Autonomous Web Agent 🌐🤖
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![CI Tests](https://github.com/prajwal0104/autonomous-web-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/prajwal0104/autonomous-web-agent/actions/workflows/ci.yml)
 [![Playwright](https://img.shields.io/badge/Browser-Playwright-45ba4b.svg)](https://playwright.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![AI-Powered](https://img.shields.io/badge/AI-OpenAI%20%7C%20Gemini%20%7C%20Ollama-orange.svg)](#supported-providers)
