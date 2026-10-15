@@ -68,16 +68,22 @@ Do not include markdown code fence formatting outside the JSON.
         memory: AgentMemory,
     ) -> ActionPlan:
         """Call configured LLM provider to plan the next action."""
-        if settings.llm_provider == "mock" or not settings.openai_api_key:
-            return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
+        openai_key_valid = settings.openai_api_key and not settings.openai_api_key.startswith("your_")
+        gemini_key_valid = settings.gemini_api_key and not settings.gemini_api_key.startswith("your_")
 
-        # Provider: OpenAI
-        if settings.llm_provider == "openai":
-            return await cls._call_openai(goal, current_url, elements, memory)
+        if settings.llm_provider == "openai" and openai_key_valid:
+            try:
+                return await cls._call_openai(goal, current_url, elements, memory)
+            except Exception as ex:
+                print(f"[Notice] OpenAI API unavailable ({ex}). Using autonomous fallback planner.")
+                return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
 
-        # Provider: Gemini
-        if settings.llm_provider == "gemini":
-            return await cls._call_gemini(goal, current_url, elements, memory)
+        if settings.llm_provider == "gemini" and gemini_key_valid:
+            try:
+                return await cls._call_gemini(goal, current_url, elements, memory)
+            except Exception as ex:
+                print(f"[Notice] Gemini API unavailable ({ex}). Using autonomous fallback planner.")
+                return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
 
         return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
 
