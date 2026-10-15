@@ -68,7 +68,11 @@ class BrowserController:
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "https://" + url
         await self.page.goto(url, wait_until="domcontentloaded")
-        await asyncio.sleep(1.0)
+        try:
+            # Allow dynamic page scripts a brief window to settle without hanging on long-polling connections
+            await self.page.wait_for_load_state("networkidle", timeout=2500)
+        except Exception:
+            pass
         return self.page.url
 
     async def refresh_elements(self) -> List[DOMElement]:
@@ -82,7 +86,10 @@ class BrowserController:
         selector = f'[data-agent-idx="{index}"]'
         await self.page.wait_for_selector(selector, state="visible", timeout=7000)
         await self.page.click(selector)
-        await asyncio.sleep(1.2)
+        try:
+            await self.page.wait_for_load_state("domcontentloaded", timeout=2000)
+        except Exception:
+            pass
 
     async def type_text(self, index: int, text: str, press_enter: bool = False) -> None:
         """Type text into an input or textarea element by index."""
@@ -92,13 +99,16 @@ class BrowserController:
         await self.page.type(selector, text, delay=50)
         if press_enter:
             await self.page.press(selector, "Enter")
-        await asyncio.sleep(1.0)
+            try:
+                await self.page.wait_for_load_state("domcontentloaded", timeout=2000)
+            except Exception:
+                pass
 
     async def scroll(self, direction: str = "down", amount: int = 500) -> None:
         """Scroll the page in the specified direction."""
         delta = amount if direction.lower() == "down" else -amount
         await self.page.evaluate(f"window.scrollBy(0, {delta})")
-        await asyncio.sleep(0.8)
+        await asyncio.sleep(0.1)
 
     async def take_screenshot(self, filepath: Path) -> Path:
         """Capture screenshot of the current page viewport."""
@@ -109,3 +119,7 @@ class BrowserController:
     async def get_page_text(self) -> str:
         """Extract clean text content from the current page body."""
         return await self.page.evaluate("() => document.body ? document.body.innerText : ''")
+
+    async def get_page_html(self) -> str:
+        """Extract full HTML content from the current page."""
+        return await self.page.content()
