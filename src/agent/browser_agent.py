@@ -4,12 +4,13 @@ import asyncio
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 from rich.console import Console
 from rich.panel import Panel
 
 from ..config import settings
 from ..browser.controller import BrowserController
+from ..tools.extractor import DataExtractor
 from .memory import AgentMemory, StepRecord
 from .planner import ActionPlan, AgentActionType, Planner
 
@@ -101,10 +102,29 @@ class AutonomousBrowserAgent:
                         observation = f"Waited {secs} seconds"
 
                     elif plan.action == AgentActionType.EXTRACT:
+                        target = str(plan.args.get("target", "all")).lower()
+                        html = await self.browser.get_page_html()
                         page_text = await self.browser.get_page_text()
-                        summary = page_text[:500] if page_text else "No text found"
-                        self.memory.extracted_data.append(summary)
-                        observation = f"Extracted {len(page_text)} chars from page"
+
+                        extracted: Dict[str, Any] = {}
+                        if target in ("tables", "all"):
+                            tables = DataExtractor.extract_tables(html)
+                            if tables:
+                                extracted["tables"] = tables
+                        if target in ("links", "all"):
+                            links = DataExtractor.extract_links(html, base_url=current_url)
+                            if links:
+                                extracted["links"] = links[:25]
+
+                        extracted["text_summary"] = page_text[:500] if page_text else ""
+                        self.memory.extracted_data.append(extracted)
+
+                        num_tables = len(extracted.get("tables", []))
+                        num_links = len(extracted.get("links", []))
+                        observation = (
+                            f"Extracted structured content: {num_tables} tables, "
+                            f"{num_links} links, {len(page_text)} text chars"
+                        )
 
                     elif plan.action == AgentActionType.FINISH:
                         self.final_answer = plan.args.get("answer", "Task completed.")
