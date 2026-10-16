@@ -117,7 +117,9 @@ autonomous-web-agent/
 │   ├── config.py              # Pydantic settings & environment configuration
 │   └── main.py                # Typer & Rich CLI interface
 ├── tests/
-│   └── test_agent.py          # Unit & regression test suite
+│   ├── test_agent.py          # Agent memory, planning, & action schemas
+│   ├── test_dom_parser.py     # Interactive DOM element extraction & visibility tests
+│   └── test_extractor.py      # Structured HTML table & link parsing tests
 ├── .env.example               # Template environment configuration
 ├── pyproject.toml             # Package metadata & build definition
 ├── requirements.txt           # Core runtime dependencies

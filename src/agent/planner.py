@@ -75,14 +75,16 @@ Do not include markdown code fence formatting outside the JSON.
             try:
                 return await cls._call_openai(goal, current_url, elements, memory)
             except Exception as ex:
-                print(f"[Notice] OpenAI API unavailable ({ex}). Using autonomous fallback planner.")
+                status = getattr(getattr(ex, "response", None), "status_code", type(ex).__name__)
+                print(f"[Notice] OpenAI API unavailable ({status}). Using autonomous fallback planner.")
                 return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
 
         if settings.llm_provider == "gemini" and gemini_key_valid:
             try:
                 return await cls._call_gemini(goal, current_url, elements, memory)
             except Exception as ex:
-                print(f"[Notice] Gemini API unavailable ({ex}). Using autonomous fallback planner.")
+                status = getattr(getattr(ex, "response", None), "status_code", type(ex).__name__)
+                print(f"[Notice] Gemini API unavailable ({status}). Using autonomous fallback planner.")
                 return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
 
         return cls._fallback_heuristic_planner(goal, current_url, elements, memory)
@@ -133,7 +135,11 @@ Do not include markdown code fence formatting outside the JSON.
         memory: AgentMemory,
     ) -> ActionPlan:
         """Query Google Gemini API."""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.gemini_model}:generateContent"
+        headers = {
+            "x-goog-api-key": settings.gemini_api_key,
+            "Content-Type": "application/json",
+        }
         prompt = (
             f"{cls.SYSTEM_PROMPT}\n\n"
             f"Goal: {goal}\n"
@@ -145,7 +151,7 @@ Do not include markdown code fence formatting outside the JSON.
             "generationConfig": {"response_mime_type": "application/json"},
         }
         async with httpx.AsyncClient(timeout=45.0) as client:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(url, headers=headers, json=payload)
             resp.raise_for_status()
             data = resp.json()
             raw_text = data["candidates"][0]["content"]["parts"][0]["text"]

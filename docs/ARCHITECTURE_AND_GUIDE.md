@@ -181,7 +181,7 @@ Double-click `run.bat` in the project root, or execute via PowerShell:
 ### 5.3 Manual Setup
 ```powershell
 # 1. Navigate to directory
-cd C:\Users\Prajwal\.gemini\antigravity\scratch\autonomous-web-agent
+cd autonomous-web-agent
 
 # 2. Activate virtual environment
 .\.venv\Scripts\Activate.ps1
