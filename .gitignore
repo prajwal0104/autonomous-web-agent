@@ -30,13 +30,18 @@ env/
 
 # Environment Variables
 .env
-.env.local
+.env.*
+!.env.example
 
-# IDE
+# IDE & Operating System
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Testing & Coverage
 .pytest_cache/
@@ -49,3 +54,6 @@ screenshots/
 traces/
 videos/
 output/
+
+# Internal Candidate Study Materials (Kept local, excluded from public repo)
+interview-preparation/
